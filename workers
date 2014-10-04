@@ -1,0 +1,25 @@
+#!/bin/bash
+
+rootdir=$PWD;
+target=/mnt/safe/test-generator
+
+function views {
+    local part=$1 #src build dist
+    inotifywait -rm -e modify -e create $rootdir/app/templates/views |
+        while read file; do
+            echo $file;
+            cp -rf $rootdir/app/templates/views $target/src
+        done
+}
+
+function styles {
+    local part=$1 #src build dist
+    inotifywait -rm -e modify -e create $rootdir/app/templates/styles |
+        while read file; do
+            echo $file;
+            cp -rf $rootdir/app/templates/styles $target/src
+        done
+}
+
+
+$*

@@ -1,0 +1,66 @@
+extends index
+
+block pagecontent
+    +row
+        +col()(md-10 md-offset-1)
+            h2.page-header Form
+            +form
+                +form-group
+                    +label(for='exampleInputEmail1', noControlLabel)
+                        | Email address
+                    +input#exampleInputEmail1(placeholder='Enter email', type='email')
+                +form-group
+                    +label(for='exampleInputPassword1', noControlLabel)
+                        | Password
+                    +input#exampleInputPassword1(placeholder='Password', type='password')
+                +form-group
+                    +label(for='exampleInputFile', noControlLabel)
+                        | File input
+                    +input#exampleInputFile(type='file', noFormControl)
+                    p.help-block
+                        | Example block-level help text here.
+                +checkbox()(noControlLabel, noFormControl)
+                    | Check me out
+                +btn(type='submit')
+                    | Submit
+
+    +row.large-margin-top
+        +col()(md-10 md-offset-1)
+            h2.page-header Inline form
+            +form()(inline)
+
+                +form-group
+                    +label(for='exampleInputEmail2', inline, noControlLabel)
+                        | Email address
+                    +input#exampleInputEmail2(placeholder='Enter email', type='email')
+
+                +form-group
+                    +label(for='exampleInputPassword2', inline, noControlLabel)
+                        | Password
+                    +input#exampleInputPassword2(placeholder='Password', type='password')
+
+                +checkbox()(noControlLabel, noFormControl)
+                    |  Remember me
+
+                +btn(type='submit')
+                    | Sign in
+
+    +row.large-margin-top
+        +col()(md-10 md-offset-1)
+            h2.page-header Validation states
+            +form
+
+                +form-group.has-success
+                    +label(for='inputSuccess')
+                        | Input with success
+                    +input#inputSuccess
+                +form-group.has-warning
+                    +label(for='inputWarning')
+                        | Input with warning
+                    +input#inputWarning
+                +form-group.has-error
+                    +label(for='inputError')
+                        | Input with error
+
+                +btn(type='submit')
+                    | Submit

@@ -58,7 +58,7 @@ var RadicGenerator = yeoman.generators.Base.extend({
             // this.src.copy('', '')
 
             this.src.copy('_LICENSE', 'LICENSE');
-            this.src.copy('_main.scss', 'src/styles/main.scss');
+            //this.src.copy('_main.scss', 'src/styles/main.scss');
             this.template('_package.json', 'package.json');
             this.src.copy('_README.md', 'README.md');
             this.src.copy('travis.yml', 'travis.yml');
@@ -66,6 +66,7 @@ var RadicGenerator = yeoman.generators.Base.extend({
 
 
             this.directory('views', 'src/views');
+            this.directory('styles', 'src/styles');
         },
 
         projectfiles: function () {

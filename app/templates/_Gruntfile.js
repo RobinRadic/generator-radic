@@ -97,6 +97,9 @@ module.exports = function (grunt) {
 
 
         watch: {
+            options: {
+                livereload: true
+            },
             gruntfile: {
                 files: ['Gruntfile.js'],
                 options: {
@@ -104,16 +107,16 @@ module.exports = function (grunt) {
                 }
             },
             wiredep: {
-                src: 'bower_components/**/*',
-                tasks: ['wiredep:build']
+                files: ['bower_components/**/*'],
+                tasks: ['wiredep:build', 'newer:sass:build', 'newer:jade:build']
             },
             sass: {
-                src: '<%= config.src.styles %>/**/*.scss',
-                tasks: ['sass:build']
+                files: ['<%= config.src.styles %>/**/*.scss'],
+                tasks: ['wiredep:build', 'newer:sass:build']
             },
             jade: {
-                src: '<%= config.src.views %>/**/*.jade',
-                tasks: ['jade:build']
+                files: ['<%= config.src.views %>/**/*.jade'],
+                tasks: ['wiredep:build', 'newer:jade:build']
             }
         }
     });
