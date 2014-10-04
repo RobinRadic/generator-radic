@@ -1,6 +1,14 @@
 {
-  "name": "package",
-  "version": "0.0.0",
-  "dependencies": {}
+  "name": "<%= appname %>",
+  "version": "<%= version %>",
+  "dependencies": {
+    "json3": "~3.3.1",
+    "es5-shim": "~3.1.0",
+    "jquery": "~1.11.1",
+    "bootstrap-sass-official": "~3.1.1",
+    "underscore": "~1.6.0",
+    "fontawesome": "~4.1.0",
+    "jquery-jsonp": "~2.4.0"
+  }
 }
 

@@ -1,0 +1,9 @@
+src:
+  views: src/views
+  styles: src/styles
+  scripts: src/scripts
+
+build:
+  dir: build
+  assets: build/assets
+  bower: build/assets/plugins

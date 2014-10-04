@@ -1,13 +1,16 @@
 {
   "name": "generator-radic",
   "version": "0.0.0",
-  "description": "Yeoman generator",
+  "description": "Yeoman generator with bootstrap-sass, jade, grunt, bower etc",
   "license": "MIT",
   "main": "app/index.js",
-  "repository": "robinradic/generator-radic",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robinradic/generator-radic"
+  },
   "author": {
     "name": "Robin Radic",
-    "email": "",
+    "email": "robin@radic.nl",
     "url": "https://github.com/RobinRadic"
   },
   "engines": {
@@ -23,8 +26,9 @@
     "yeoman-generator"
   ],
   "dependencies": {
-    "yeoman-generator": "^0.17.0",
     "chalk": "^0.5.0",
+    "fs-extra": "^0.12.0",
+    "yeoman-generator": "^0.17.7",
     "yosay": "^0.3.0"
   },
   "devDependencies": {
