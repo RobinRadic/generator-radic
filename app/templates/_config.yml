@@ -1,3 +1,5 @@
+tmp: .tmp
+
 src:
   views: src/views
   styles: src/styles
@@ -7,3 +9,7 @@ build:
   dir: build
   assets: build/assets
   bower: build/assets/plugins
+
+dist:
+  dir: dist
+  assets: dist/assets

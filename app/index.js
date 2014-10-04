@@ -36,11 +36,11 @@ var RadicGenerator = yeoman.generators.Base.extend({
             default: '0.1.0'
         }];
 
-        this.prompt(prompts, function (props) {
-            this.appname = props.appname;
-            this.version = props.version;
+        //this.prompt(prompts, function (props) {
+            this.appname = 'radio'; // props.appname;
+            this.version = '0.1.0'; //props.version;
             done();
-        }.bind(this));
+        //}.bind(this));
     },
 
     writing: {
@@ -53,7 +53,7 @@ var RadicGenerator = yeoman.generators.Base.extend({
             this.src.copy('_.gitignore', '.gitignore');
             this.template('_bower.json', 'bower.json');
             this.template('_config.yml', 'config.yml');
-            this.template('_Gruntfile.js', 'Gruntfile.js');
+            this.src.copy('_Gruntfile.js', 'Gruntfile.js');
             // this.template('', '');
             // this.src.copy('', '')
 
