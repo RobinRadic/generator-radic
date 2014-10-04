@@ -22,20 +22,20 @@ module.exports = function (grunt) {
                 src: ['**/*'],
                 dest: '<%= config.build.bower %>/'
             },
-            dist: {expand: true, cwd: '<%= config.build.dir %>', src: ['**'], dest: '<%= config.dist.dir %>'}
+            dist: {expand: true, cwd: '<%= config.build.dir %>', src: ['index.html'], dest: '<%= config.dist.dir %>/'}
         },
         clean: {
             build: ['<%= config.build.dir %>'],
             dist: ['<%= config.dist.dir %>']
-            // tmp: ['<%= config.tmp %>']
         },
 
         useminPrepare: {
-            html: ['<%= config.build.dir %>/index.html'],
-            //css: ['<%= config.dist.assets %>/styles/{,*/}*.css'],
-            options: {
-                dest: '<%= config.dist.assets %>'
-            }
+            html: ['<%= config.build.dir %>/index.html']
+        },
+
+
+        usemin: {
+            html: ['<%= config.dist.dir %>/index.html']
         },
 
         sass: {
@@ -63,7 +63,7 @@ module.exports = function (grunt) {
                     data: {
                         debug: true,
                         bowerAsset: function (path) {
-                            return '/assets/plugins/' + path
+                            return 'assets/plugins' + path
                         },
                         timestamp: "<%= new Date().getTime() %>"
                     }
@@ -124,12 +124,12 @@ module.exports = function (grunt) {
     grunt.registerTask('dist', [
         'build',
 
-        'clean:dist', // 'copy:dist',
+        'clean:dist', 'copy:dist',
 
         'useminPrepare:html',
         'concat:generated',
         'uglify:generated',
-       // 'cssmin:generated',
-       // 'usemin:html'
+        'cssmin:generated',
+        'usemin'
     ]);
 };
