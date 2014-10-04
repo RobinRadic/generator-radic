@@ -1,27 +1,41 @@
 # generator-radic [![Build Status](https://secure.travis-ci.org/robinradic/generator-radic.png?branch=master)](https://travis-ci.org/robinradic/generator-radic)
 
-> [Yeoman](http://yeoman.io) generator
+> A [Yeoman](http://yeoman.io) generator using my personal preferences.
 
+## Quick overview
+
+#### Files/directories generated
+
+- bower.json, package.json, config.yml, Gruntfile.js, LICENSE, README.md, travis.yml, editorconfig, jshintrc
+- src/views/{layouts/default.jade,partials,pages/index.jade,mixins}
+
+#### Grunt
+
+- sass
+- jade
+- livereload
+- connect
+- wiredep
+- build
+
+#### Bower
+bootstrap-sass-official
+json3
+es5-shim
+jquery
+underscore
+fontawesome
+jquery-jsonp
 
 ## Getting Started
 
-### What is Yeoman?
-
-Trick question. It's not a thing. It's this guy:
-
-![](http://i.imgur.com/JHaAlBJ.png)
-
-Basically, he wears a top hat, lives in your computer, and waits for you to tell him what kind of application you wish to create.
-
-Not every new computer comes with a Yeoman pre-installed. He lives in the [npm](https://npmjs.org) package repository. You only have to ask for him once, then he packs up and moves into your hard drive. *Make sure you clean up, he likes new and shiny things.*
+### Install yeoman
 
 ```bash
 npm install -g yo
 ```
 
-### Yeoman Generators
-
-Yeoman travels light. He didn't pack any generators when he moved in. You can think of a generator like a plug-in. You get to choose what type of application you wish to create, such as a Backbone application or even a Chrome extension.
+### Install generator-radic
 
 To install generator-radic from npm, run:
 
@@ -35,11 +49,13 @@ Finally, initiate the generator:
 yo radic
 ```
 
-### Getting To Know Yeoman
+### Subgenerators
 
-Yeoman has a heart of gold. He's a person with feelings and opinions, but he's very easy to work with. If you think he's too opinionated, he can be easily convinced.
-
-If you'd like to get to know Yeoman better and meet some of his friends, [Grunt](http://gruntjs.com) and [Bower](http://bower.io), check out the complete [Getting Started Guide](https://github.com/yeoman/yeoman/wiki/Getting-Started).
+```bash
+yo radic:jquery-plugin              # Quite similiar to grunt-init-jquery
+yo radic:jquery-ui-widget           # Quite similiar to grunt-init-jquery
+yo radic:angular                    # Creates full angular application on top of current src
+```
 
 
 ## License
