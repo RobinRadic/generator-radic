@@ -1,6 +1,6 @@
 # <%= appname %>
 
-version: <%= version %>
+version: <%= options.version %>
 
 
 ## Getting Started

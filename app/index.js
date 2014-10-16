@@ -3,8 +3,7 @@ var util = require('util');
 var path = require('path');
 var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
-var yosay = require('yosay');
-
+var fs = require('fs-extra');
 
 var RadicGenerator = yeoman.generators.Base.extend({
     initializing: function () {
@@ -13,7 +12,7 @@ var RadicGenerator = yeoman.generators.Base.extend({
         this.argument('appname', {type: String, required: false});
         this.appname = this.appname || path.basename(process.cwd());
         this.appname = this._.camelize(this._.slugify(this._.humanize(this.appname)));
-
+        //  console.log(util);
     },
 
     prompting: function () {
@@ -35,20 +34,43 @@ var RadicGenerator = yeoman.generators.Base.extend({
             message: 'Version?',
             default: '0.1.0'
         }];
+        // defaults
+        this.options = {
+            appname: this.appname,
+            version: '0.0.1',
+            description: 'An awesome project',
+            license: 'MIT',
+            repository: {
+                type: "git",
+                url: "https://github.com/RobinRadic/" + this.appname
+            },
+            author: {
+                name: "Robin Radic",
+                email: "robin@radic.nl",
+                url: "https://github.com/RobinRadic"
+            },
+            "generatedChildren": {}
+        };
 
         //this.prompt(prompts, function (props) {
-            this.appname = 'radio'; // props.appname;
-            this.version = '0.1.0'; //props.version;
-            done();
+
+
+        done();
         //}.bind(this));
     },
 
     writing: {
 
         app: function () {
+            //console.log(this);
+            fs.outputJSONSync(path.join(this.env.cwd, 'radic.json'), this.options);
+           // process.exit(1);
+           // this.template('_radic.json', 'radic.json');
+
             this.dest.mkdir('src');
             this.dest.mkdir('src/scripts');
 
+            this.src.copy('../../radic.js', 'radic.js');
 
             this.src.copy('_.gitignore', '.gitignore');
             this.template('_bower.json', 'bower.json');
@@ -72,6 +94,7 @@ var RadicGenerator = yeoman.generators.Base.extend({
         projectfiles: function () {
             this.src.copy('editorconfig', '.editorconfig');
             this.src.copy('jshintrc', '.jshintrc');
+
         }
     },
 
@@ -81,3 +104,4 @@ var RadicGenerator = yeoman.generators.Base.extend({
 });
 
 module.exports = RadicGenerator;
+

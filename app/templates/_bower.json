@@ -1,6 +1,6 @@
 {
   "name": "<%= appname %>",
-  "version": "<%= version %>",
+  "version": "<%= options.version %>",
   "dependencies": {
     "json3": "~3.3.1",
     "es5-shim": "~3.1.0",

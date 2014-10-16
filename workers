@@ -4,7 +4,6 @@ rootdir=$PWD;
 target=/mnt/safe/test-generator
 
 function views {
-    local part=$1 #src build dist
     inotifywait -rm -e modify -e create $rootdir/app/templates/views |
         while read file; do
             echo $file;
@@ -13,7 +12,6 @@ function views {
 }
 
 function styles {
-    local part=$1 #src build dist
     inotifywait -rm -e modify -e create $rootdir/app/templates/styles |
         while read file; do
             echo $file;
@@ -21,5 +19,11 @@ function styles {
         done
 }
 
+function app-gruntfile {
+    inotifywait -m -e modify -e create $rootdir/app/templates |
+        while read file; do
+            php -r 'list($path, $event, $filename) = explode(" ", "{$file"); echo $path . $event . $filename;'
+        done
 
+}
 $*
