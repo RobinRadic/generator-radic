@@ -1,0 +1,19 @@
+#!/bin/bash
+
+pdir=$PWD
+
+
+# remove possible _includes variants
+git rm _includes -rf;
+rm _includes -rf
+rm .git/modules -rf
+
+# submodule _includes to get latest, and then commit with it
+git submodule add https://github.com/RobinRadic/shared-gh-pages.git _includes
+git add -A
+git commit -m "$*"
+git push -u origin master
+
+
+# now lets symbolic link the repo so we can edit the files
+ln -s ../shared-gh-pages _includes
