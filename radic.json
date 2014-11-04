@@ -1,0 +1,16 @@
+{
+  "appname": "generatorRadic",
+  "version": "0.0.1",
+  "description": "An awesome project",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RobinRadic/generatorRadic"
+  },
+  "author": {
+    "name": "Robin Radic",
+    "email": "robin@radic.nl",
+    "url": "https://github.com/RobinRadic"
+  },
+  "generatedChildren": {}
+}
