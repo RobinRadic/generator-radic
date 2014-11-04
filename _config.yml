@@ -8,7 +8,7 @@ url: http://robinradic.github.io
 
 
 layouts:     ./_includes/_layouts
-data_source:  ._includes/_data
+data_source:  ./_includes/_data
 
 
 
