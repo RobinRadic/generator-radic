@@ -15,5 +15,10 @@ git commit -m "$*"
 git push -u origin master
 
 
+# remove possible _includes variants
+git rm _includes -rf;
+rm _includes -rf
+rm .git/modules -rf
+
 # now lets symbolic link the repo so we can edit the files
 ln -s ../shared-gh-pages _includes
