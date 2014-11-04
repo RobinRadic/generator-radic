@@ -12,5 +12,5 @@ rm .git/modules -rf
 git submodule add https://github.com/RobinRadic/shared-gh-pages.git _includes
 git add -A
 git commit -m "$*"
-git push -u origin master
+git push -u origin gh-pages #gh-pages for projects!
 
