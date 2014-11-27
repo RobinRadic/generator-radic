@@ -1,107 +1,148 @@
 'use strict';
-var util = require('util');
-var path = require('path');
-var yeoman = require('yeoman-generator');
-var yosay = require('yosay');
-var fs = require('fs-extra');
+var fs = require('fs-extra'),
+    path = require('path'),
+    util = require('util'),
+    Base = require('../lib/base'),
+    yosay = require('yosay'),
+    chalk = require('chalk'),
+    _ = require('underscore'),
+    utils = require('../lib/utils');
 
-var RadicGenerator = yeoman.generators.Base.extend({
-    initializing: function () {
-        this.pkg = require('../package.json');
-
-        this.argument('appname', {type: String, required: false});
-        this.appname = this.appname || path.basename(process.cwd());
-        this.appname = this._.camelize(this._.slugify(this._.humanize(this.appname)));
-        //  console.log(util);
-    },
-
-    prompting: function () {
-        var done = this.async();
-
-        // Have Yeoman greet the user.
-        this.log(yosay(
-            'Welcome to the super Radic generator! ' + this.appname
-        ));
-
-        var prompts = [{
-            type: 'input',
-            name: 'appname',
-            message: 'App name?',
-            default: this.appname
-        }, {
-            type: 'input',
-            name: 'version',
-            message: 'Version?',
-            default: '0.1.0'
-        }];
-        // defaults
-        this.options = {
-            appname: this.appname,
-            version: '0.0.1',
-            description: 'An awesome project',
-            license: 'MIT',
-            repository: {
-                type: "git",
-                url: "https://github.com/RobinRadic/" + this.appname
-            },
-            author: {
-                name: "Robin Radic",
-                email: "robin@radic.nl",
-                url: "https://github.com/RobinRadic"
-            },
-            "generatedChildren": {}
-        };
-
-        //this.prompt(prompts, function (props) {
+var Generator = module.exports = function Generator(args, options) {
+    Base.apply(this, arguments);
 
 
-        done();
-        //}.bind(this));
-    },
+    this.argument('appname', {type: String, required: false});
+    this.appname = this.appname || path.basename(process.cwd());
+    this.appname = this._.slugify(this._.humanize(this.appname));
 
-    writing: {
+    this.pkg = require('../package.json');
+    this.sourceRoot(path.join(__dirname, '../templates/general'));
 
-        app: function () {
-            //console.log(this);
-            fs.outputJSONSync(path.join(this.env.cwd, 'radic.json'), this.options);
-           // process.exit(1);
-           // this.template('_radic.json', 'radic.json');
-
-            this.dest.mkdir('src');
-            this.dest.mkdir('src/scripts');
-
-            this.src.copy('../../radic.js', 'radic.js');
-
-            this.src.copy('_.gitignore', '.gitignore');
-            this.template('_bower.json', 'bower.json');
-            this.template('_config.yml', 'config.yml');
-            this.src.copy('_Gruntfile.js', 'Gruntfile.js');
-            // this.template('', '');
-            // this.src.copy('', '')
-
-            this.src.copy('_LICENSE', 'LICENSE');
-            //this.src.copy('_main.scss', 'src/styles/main.scss');
-            this.template('_package.json', 'package.json');
-            this.src.copy('_README.md', 'README.md');
-            this.src.copy('travis.yml', 'travis.yml');
-            this.src.copy('_README.md', 'README.md');
-
-
-            this.directory('views', 'src/views');
-            this.directory('styles', 'src/styles');
-        },
-
-        projectfiles: function () {
-            this.src.copy('editorconfig', '.editorconfig');
-            this.src.copy('jshintrc', '.jshintrc');
-
+    this.on('end', function(){
+        if(this.git === true){
+            this.invoke('radic:gitinit')
         }
-    },
+    });
 
-    end: function () {
-        this.installDependencies();
+};
+
+util.inherits(Generator, Base);
+
+Generator.prototype.welcome = function welcome() {
+
+    this.log(yosay('The Radic generator'));
+    this.log(
+        chalk.magenta(
+            'You\'re about to generate radicalized files. Be prepared....' +
+            '\n'
+        ) +
+        chalk.green(
+            'The base generator will intitialize a global project. Things like \n' +
+            chalk.blue('git ') + chalk.red('node ') + chalk.yellow('License, readme, travis, jshint ') + ' etc..'
+        )
+    );
+
+    if (this.options.minsafe) {
+        this.log.error(
+            'The --minsafe flag has been removed. For more information, see' +
+            '\nhttps://github.com/yeoman/generator-angular#minification-safe.' +
+            '\n'
+        );
     }
-});
 
-module.exports = RadicGenerator;
+
+
+};
+
+Generator.prototype.askGeneral = function askGeneral() {
+    var cb = this.async();
+    var self = this;
+    this.prompt([{
+        type: 'input',
+        name: 'appname',
+        message: 'Appname?',
+        default: this.appname
+    }, {
+        type: 'input',
+        name: 'version',
+        message: 'What version?',
+        default: '0.0.1'
+    }, {
+        type: 'confirm',
+        name: 'license',
+        message: 'Generate default MIT license?',
+        default: true
+    }, {
+        type: 'confirm',
+        name: 'jshint',
+        message: 'Generate default .jshinitrc?',
+        default: true
+    }], function (props) {
+        this.appname = self._.slugify(self._.humanize(props.appname));
+        this.version = props.version;
+        this.license = props.license;
+        this.jshint = props.jshint;
+        cb();
+    }.bind(this));
+};
+
+Generator.prototype.askProjectType = function askProjectType() {
+    var cb = this.async();
+    var self = this;
+    // Use git?
+    this.prompt([{
+        type: 'list',
+        name: 'projectType',
+        message: 'What kind of project (extendable afterwards with commands like yo radic:laravel, radic:website etc..)?',
+        choices: [
+            {value: 'composer', name: 'PHP / composer.json'},
+            {value: 'node', name: 'Node website or server / package.json'},
+            {value: 'other', name: 'Something else'}
+        ]
+    }], function (props) {
+        this.projectType = props.projectType;
+        cb();
+    }.bind(this));
+};
+
+Generator.prototype.askGit = function askGit() {
+    var cb = this.async();
+    var self = this;
+    // Use git?
+    this.prompt([{
+        type: 'confirm',
+        name: 'git',
+        message: 'Use git?',
+        default: true
+    }], function (props) {
+        this.git = props.git;
+        cb();
+    }.bind(this));
+};
+
+
+
+// appname, version, license, jshint, projectType, git, gitGenerate, gitCommit, gitRemote,
+// gitRemoteType, gitUsername, gitPassword, gitOwner, gitRepository, gitPush
+
+Generator.prototype.doGeneral = function doGeneral() {
+
+    if(this.license === true) {
+        this.src.copy('_LICENSE', 'LICENSE');
+    }
+    this.template('_README.md', 'README.md');
+    this.src.copy('editorconfig', '.editorconfig');
+    if (this.jshint === true) {
+        this.src.copy('jshintrc', '.jshintrc');
+    }
+    this.src.copy('travis.yml', '.travis.yml');
+
+    if(this.projectType === 'node'){
+        utils.createNode(this);
+    } else if(this.projectType === 'composer'){
+        utils.createComposer(this)
+    }
+
+};
 
