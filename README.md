@@ -1,6 +1,6 @@
 generator-radic
 ===============
-[![Build Status](https://secure.travis-ci.org/robinradic/generator-radic.png?branch=master)](https://travis-ci.org/robinradic/generator-radic)
+[![Build Status](https://secure.travis-ci.org/RobinRadic/generator-radic.svg?branch=master)](https://travis-ci.org/RobinRadic/generator-radic)
 
 > A [Yeoman](http://yeoman.io) generator using my personal preferences.
 
