@@ -49,5 +49,5 @@ Creates a global configuration file that stores shared/common data used by all o
 - **optional** push to origin/master
 
 ## License
-
+Copyright 2014 Robin Radic  
 [MIT Licensed](http://radic.mit-license.org)
