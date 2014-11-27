@@ -4,12 +4,12 @@ pdir=$PWD
 
 
 # remove possible _includes variants
-git rm _includes -rf;
-rm _includes -rf
-rm .git/modules -rf
+#git rm _includes -rf;
+#rm _includes -rf
+#rm .git/modules -rf
 
 # submodule _includes to get latest, and then commit with it
-git submodule add -b master https://github.com/RobinRadic/shared-gh-pages.git _includes
+git submodule update --remote
 git add -A
 git commit -m "$*"
 git push -u origin gh-pages #gh-pages for projects!
