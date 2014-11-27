@@ -1,6 +1,6 @@
 {
   "name": "generator-radic",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "Yeoman generator with bootstrap-sass, jade, grunt, bower etc",
   "license": "MIT",
   "main": "app/index.js",
