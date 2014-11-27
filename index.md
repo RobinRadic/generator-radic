@@ -1,9 +1,7 @@
 ---
 layout: page
-title: Generator radic
+title: Yeoman generator-radic
 ---
-generator-radic
-===============
 [![Build Status](https://secure.travis-ci.org/RobinRadic/generator-radic.svg?branch=master)](https://travis-ci.org/RobinRadic/generator-radic)
 [![GitHub version](https://badge.fury.io/gh/robinradic%2Fgenerator-radic.svg)](http://badge.fury.io/gh/robinradic%2Fgenerator-radic)
 
