@@ -4,10 +4,12 @@ title: Yeoman generator-radic
 ---
 [![Build Status](https://secure.travis-ci.org/RobinRadic/generator-radic.svg?branch=master)](https://travis-ci.org/RobinRadic/generator-radic)
 [![GitHub version](https://badge.fury.io/gh/robinradic%2Fgenerator-radic.svg)](http://badge.fury.io/gh/robinradic%2Fgenerator-radic)
+[![Goto documentation](http://img.shields.io/badge/goto-documentation-orange.svg)](http://robinradic.github.io/generator-radic)
+[![Goto repository](http://img.shields.io/badge/goto-repository-orange.svg)](https://github.com/robinradic/generator-radic)
+[![License](http://img.shields.io/badge/license-MIT-blue.svg)](http://radic.mit-license.org)
 
-> **Under development**
 
-A [Yeoman](http://yeoman.io) generator using my personal preferences. Generates various types of projects or files. Or does some other stuff..
+> A [Yeoman](http://yeoman.io) generator using my personal preferences. Generates various types of projects or files. Or does some other stuff..
 
 Getting Started
 ---------------
