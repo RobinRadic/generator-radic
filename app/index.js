@@ -11,11 +11,6 @@ var fs = require('fs-extra'),
 var Generator = module.exports = function Generator(args, options) {
     Base.apply(this, arguments);
 
-
-    this.argument('appname', {type: String, required: false});
-    this.appname = this.appname || path.basename(process.cwd());
-    this.appname = this._.slugify(this._.humanize(this.appname));
-
     this.pkg = require('../package.json');
     this.sourceRoot(path.join(__dirname, '../templates/general'));
 
@@ -80,6 +75,9 @@ Generator.prototype.askGeneral = function askGeneral() {
         default: true
     }], function (props) {
         this.appname = self._.slugify(self._.humanize(props.appname));
+
+        this.config.set('appname', this.appname);
+
         this.version = props.version;
         this.license = props.license;
         this.jshint = props.jshint;
@@ -144,5 +142,7 @@ Generator.prototype.doGeneral = function doGeneral() {
         utils.createComposer(this)
     }
 
+    this.config.set('type', this.projectType);
+    this.config.set('generated', ['project']);
 };
 

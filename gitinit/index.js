@@ -10,10 +10,10 @@ var path = require('path'),
     async = require('async'),
 
     utils = require('../lib/utils'),
+    defined = utils.defined,
     Base = require('../lib/base.js'),
-    Git = require('../lib/git'),
+    git = require('../lib/git').git,
     common = require('../lib/common'),
-    git = new Git(),
     gitremote = require('../lib/gitremote');
 
 
@@ -26,6 +26,8 @@ util.inherits(Generator, Base);
 Generator.prototype.askGit = function askGit() {
     var cb = this.async();
     var self = this;
+
+
 
     // Use git?
     this.prompt([{
@@ -87,7 +89,7 @@ Generator.prototype.doGit = function doGit() {
     async.waterfall([
         function (done) {
             git.init(function (err, out) {
-                self.log('Initialized git');
+                self.log.ok('Initialized git');
                 done(err);
             });
         },
@@ -99,13 +101,13 @@ Generator.prototype.doGit = function doGit() {
         },
         function (done) {
             git.addAll(function (err, out) {
-                self.log('Added all files to git');
+                self.log.ok('Added all files to git');
                 done(err);
             })
         },
         function (done) {
             git.commit(self.gitCommitMessage, function (err, out) {
-                self.log('Commited pending files');
+                self.log.ok('Commited pending files');
                 done(err);
             });
         }
@@ -131,7 +133,7 @@ Generator.prototype.doGitRemote = function doGitRemote() {
     async.waterfall([
         function (done) {
             git.remote.add('origin', remoteUrl, function (err, out) {
-                self.log('Added remote origin ' + self.gitRemoteType);
+                self.log.ok('Added remote origin ' + self.gitRemoteType);
                 done(err);
             });
         },
@@ -139,7 +141,7 @@ Generator.prototype.doGitRemote = function doGitRemote() {
             if(self.gitRemote !== 'create') return done(null);
 
             gitremote[self.gitRemoteType].repos.create(self.gitOwner, self.gitRepository, null, function(err, out){
-                self.log('Created remote repository' + self.gitOwner + '/' + self.gitRepository);
+                self.log.ok('Created remote repository' + self.gitOwner + '/' + self.gitRepository);
                 done(err);
             }, true);
 
@@ -147,7 +149,7 @@ Generator.prototype.doGitRemote = function doGitRemote() {
         function (done) {
             if(self.gitPush !== true) return done(null);
             git.push('origin', 'master', function (err, out) {
-                self.log('Pushed origin master to ' + self.gitRemoteType);
+                self.log.ok('Pushed origin master to ' + self.gitRemoteType);
                 done(err);
             });
         }
@@ -158,5 +160,6 @@ Generator.prototype.doGitRemote = function doGitRemote() {
 };
 
 Generator.prototype.doDone = function doDone() {
-    this.log("\n" + chalk.green("Git successfull"))
+
+    this.log.ok(chalk.green("Finished gitinit"))
 };
