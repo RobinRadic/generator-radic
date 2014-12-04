@@ -1,0 +1,7 @@
+{
+    "devDependencies": {
+        "grunt-preprocess": "git://github.com/RobinRadic/grunt-preprocess.git",
+        "grunt-shell": "^1.1.1",
+        "preprocess": "^2.1.0"
+    }
+}

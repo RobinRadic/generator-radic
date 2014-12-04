@@ -5,7 +5,7 @@ var path = require('path'),
     yeoman = require('yeoman-generator'),
     yosay = require('yosay'),
     chalk = require('chalk'),
-    _ = require('underscore'),
+    _ = require('lodash'),
     fs = require('fs-extra'),
     async = require('async'),
 
@@ -27,40 +27,13 @@ Generator.prototype.ask = function ask() {
     var cb = this.async();
     var self = this;
 
-    return cb();
     if(this.generated === false){
-       // this.log.error('You need to generate a base project first by running ' + chalk.underline('yo radic'));
-       // throw new Error();
+       this.log.error('You need to generate a base project first by running ' + chalk.underline('yo radic'));
+       throw new Error();
     }
-    // source dir (src)
-    // build dir (build)
-    // dist dir (dist)
 
-    this.o = {};
+    cb();
 
-    this.prompt([
-        {
-            type: 'input',
-            name: 'source',
-            message: 'Source directory path?',
-            default: 'src'
-        },
-        {
-            type: 'input',
-            name: 'build',
-            message: 'Build directory path?',
-            default: 'build'
-        },
-        {
-            type: 'input',
-            name: 'dist',
-            message: 'Distribution directory path?',
-            default: 'dist'
-        }
-    ], function (props) {
-        _.extend(this.o, props);
-        cb();
-    }.bind(this));
 };
 
 
@@ -69,14 +42,26 @@ Generator.prototype.doMain = function doMain() {
     var self = this;
 
 
+    var pkg = utils.readJSON(this, 'package.json');
+
+    this.src.mergeJson('_package.json', 'package.json')
+
+    this.options = {
+        version: pkg.version
+    };
+
     this.dest.mkdir('src');
     this.dest.mkdir('src/scripts');
-    this.template('_bower.json', 'bower.json');
-    this.template('_package.json', 'package.json');
-    this.template('_config.yml', 'config.yml');
-    this.src.copy('_Gruntfile.js', 'Gruntfile.js');
+    this.directory('tasks', 'src/tasks');
     this.directory('views', 'src/views');
     this.directory('styles', 'src/styles');
+
+    this.src.copy('_Gruntfile.js', 'Gruntfile.js');
+
+    this.template('_bower.json', 'bower.json');
+    this.template('_config.yml', 'config.yml');
+
+
     this.conflicter.resolve(function () {
         cb();
     });
@@ -89,5 +74,6 @@ Generator.prototype.doInstall = function doInstall() {
 };
 
 Generator.prototype.doDone = function doDone() {
+    this.addGenerated('website');
     this.log.ok(chalk.green("Finished generating your website"))
 };

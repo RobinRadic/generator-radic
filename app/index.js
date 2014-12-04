@@ -12,7 +12,7 @@ var Generator = module.exports = function Generator(args, options) {
     Base.apply(this, arguments);
 
     this.pkg = require('../package.json');
-    this.sourceRoot(path.join(__dirname, '../templates/general'));
+
 
     this.on('end', function(){
         if(this.git === true){
@@ -125,6 +125,12 @@ Generator.prototype.askGit = function askGit() {
 // gitRemoteType, gitUsername, gitPassword, gitOwner, gitRepository, gitPush
 
 Generator.prototype.doGeneral = function doGeneral() {
+
+    this.data = {
+        date: new Date(Date.now()),
+        user: this.c
+    };
+    this.data.year = this.data.date.getFullYear();
 
     if(this.license === true) {
         this.src.copy('_LICENSE', 'LICENSE');

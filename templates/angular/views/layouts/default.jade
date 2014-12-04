@@ -1,6 +1,6 @@
 include ../base
 doctype html
-html(lang='en')
+html(lang='en', ng-app='<%= appname %>')
 head
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1.0')
@@ -19,9 +19,12 @@ head
         // endbower
         link(href='assets/styles/main.css', rel='stylesheet')
         // endbuild
-body
+body(ng-controller='MainCtrl')
     block body
 
 
+// build:js assets/vendor.js
+// bower:js
+// endbower
+// endbuild
 block scripts
-        include ../partials/

@@ -1,0 +1,19 @@
+{
+    "tasks": {
+        "clean": {
+            "dist": ["<%= config.dist.dir %>"]
+        },
+        "copy": {
+            "dist": {
+                "expand": true,
+                "cwd": "<%= config.build.dir %>",
+                "src": ["index.html"],
+                "dest": "<%= config.dist.dir %>/"
+            }
+        },
+
+        "usemin": {
+            "html": ["<%= config.dist.dir %>/index.html"]
+        }
+    }
+}

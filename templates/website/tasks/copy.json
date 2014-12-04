@@ -1,0 +1,12 @@
+{
+    "tasks": {
+        "copy": {
+            "build": {
+                "expand": true,
+                "cwd": "bower_components",
+                "src": ["**/*"],
+                "dest": "<%= config.build.bower %>/"
+            }
+        }
+    }
+}

@@ -4,6 +4,7 @@ src:
   views: src/views
   styles: src/styles
   scripts: src/scripts
+  tasks: src/tasks
 
 build:
   dir: build

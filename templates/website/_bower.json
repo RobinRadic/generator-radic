@@ -7,7 +7,7 @@
     "jquery": "~1.11.1",
     "bootstrap-sass-official": "3.2.0+2",
     "bootswatch-scss": "3.2.0",
-    "underscore": "~1.6.0",
+    "lodash": "~2.4.1",
     "components-font-awesome": "~4.2.0",
     "jquery-jsonp": "~2.4.0"
   }

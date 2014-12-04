@@ -1,0 +1,7 @@
+{
+    "tasks": {
+        "clean": {
+            "build": ["<%= config.build.dir %>"]
+        }
+    }
+}
