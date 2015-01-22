@@ -11,7 +11,20 @@ module.exports = function (grunt) {
     require('time-grunt')(grunt);
 
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json')
+        pkg: grunt.file.readJSON('package.json'),
+        git: {
+            docs: {
+                options: {
+                    cwd: 'docs',
+                    ignoreErrors: true
+                },
+                commands: [
+                    ['add', { A: true }],
+                    ['commit', { m: 'Auto commit & push' }],
+                    ['push', { u: 'origin' }, 'gh-pages']
+                ]
+            }
+        }
 
     });
 
