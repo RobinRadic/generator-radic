@@ -1,0 +1,14 @@
+---
+layout: page
+title: Yeoman generator-radic
+minify_content: false
+navigation:
+  - name: Home
+    link: /
+    icon: fa fa-home
+
+  - name: Overview
+    link: /generator-radic
+    icon: fa fa-dashboard
+
+---
