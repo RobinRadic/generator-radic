@@ -1,182 +1,138 @@
 'use strict';
-var fs = require('fs-extra'),
-    path = require('path'),
-    os = require('os'),
+
+var path = require('path'),
 
     yeoman = require('yeoman-generator'),
     yosay = require('yosay'),
-    chalk = require('chalk'),
+    Base = require('../lib/base'),
+    ScriptBase = require('../lib/script-base'),
     _ = require('lodash'),
-    ini = require('ini'),
+    semver = require('semver'),
+    async = require('async'),
 
     radic = require('radic'),
-    util = radic.util;
-
-
-function resolveUserData(){
-    var data = {
-        email: '',
-        name: '',
-        github: {
-            username: '',
-            password: ''
-        },
-        bitbucket: {
-            username: '',
-            password: ''
-        }
-    };
-
-    var dir = util.getUserHomeDir();
-    if(os.type() === 'Linux') {
-        // we search for ~/.gitconfig, ~/.npmrc, ~/.composer/auth.json
-        var paths = {
-            git: path.join(dir, '.gitconfig'),
-            npm: path.join(dir, '.npmrc'),
-            composer:  path.join(dir, '.composer/auth.json')
-        };
-        if(fs.existsSync(paths.git)){
-            var gitconfig = ini.parse(fs.readFileSync(paths.git, 'utf-8'));
-            if(util.defined(gitconfig.user.email)){
-                data.email = gitconfig.user.email;
-            }
-            if(util.defined(gitconfig.user.name)){
-                data.name = gitconfig.user.name;
-            }
-        }
-        if(fs.existsSync(paths.npm) && data.email.length == 0){
-            var npmconfig = ini.parse(fs.readFileSync(paths.npm, 'utf-8'));
-            if(util.defined(npmconfig.email)){
-                data.email = npmconfig.email;
-            }
-        }
-        if(fs.existsSync(paths.composer)){
-            var cconfig = fs.readJSONFileSync(paths.composer);
-            if(util.defined(cconfig['http-basic'])){
-                _.each({github: 'github.com', bitbucket: 'bitbucket.org'}, function(provider, key){
-                    if(util.defined(cconfig['http-basic'][provider])) {
-                        data[key].username = cconfig['http-basic'][provider].username || ''
-                        data[key].password = cconfig['http-basic'][provider].password || ''
-                    }
-                });
-            }
-        }
-
-    }
-    return data;
-}
+    util = radic.util,
+    cli = radic.cli;
 
 
 
 var Generator = module.exports = function Generator(args, options) {
-    yeoman.generators.Base.apply(this, arguments);
-};
-util.inherits(Generator, yeoman.generators.Base);
+    ScriptBase.apply(this, arguments);
 
-Generator.prototype.welcome = function welcome() {
+    this.action = args[0];
+    this.key = args[1];
+    this.value = args[2];
 
-    var u = resolveUserData();
-    this.c = {
-        general: {
-            name: u.name,
-            email: u.email,
-            website: null,
-            license: 'MIT',
-            licenselink: null
-        },
-        git: {
-            providers: {
-                github: {},
-                bitbucket: {}
-            }
-        }
-    };
-    _.extend(this.c.git.providers.github, u.github);
-    _.extend(this.c.git.providers.bitbucket, u.bitbucket);
+    this.configItem = function(name, type, message, options) {
+        options = options || {};
+        var defaults = {
+            type: type,
+            name: name,
+            message: message,
+            default: this.conf.get(name)
+        };
+        return _.merge(defaults, options);
+    }.bind(this);
 
-
-    this.radic = radic.app;
-    var config = this.radic.config.get();
-    _.extend(this.c, config);
-
-    this.log(yosay('The Radic config generator'));
-    this.log(
-        chalk.green(
-            'This will set a global configuration in order to minimize your time spend answering questions \n'
-        )
-    );
-
-};
-
-Generator.prototype.askGeneral = function askGeneral() {
-    var cb = this.async();
-    var self = this;
-    this.prompt([
-        {
-            type: 'input',
-            name: 'general.name',
-            message: 'Your name',
-            default: this.c.general.name
-        },
-        {
-            type: 'input',
-            name: 'general.email',
-            message: 'Your email',
-            default: this.c.general.email
-        },
-        {
-            type: 'input',
-            name: 'general.website',
-            message: 'Your website (write fully like: http://yourweb.com)?',
-            default: this.c.general.website
-        },
-        {
-            type: 'input',
-            name: 'general.license',
-            message: 'License that you\'re commonly using?',
-            default: this.c.general.license
-        },
-        {
-            type: 'input',
-            name: 'general.licenselink',
-            message: 'A weblink to your license',
-            default: this.c.general.licenselink
-        },
-        {
-            type: 'input',
-            name: 'git.providers.github.username',
-            message: 'Github username',
-            default: this.c.git.providers.github.username
-        },
-        {
-            type: 'password',
-            name: 'git.providers.github.password',
-            message: 'Github password',
-            default: this.c.git.providers.github.password
-        },
-        {
-            type: 'input',
-            name: 'git.providers.bitbucket.username',
-            message: 'Bitbucket username',
-            default: this.c.git.providers.bitbucket.username
-        },
-        {
-            type: 'password',
-            name: 'git.providers.bitbucket.password',
-            message: 'Bitbucket password',
-            default: this.c.git.providers.bitbucket.password
-        }
-    ], function (props) {
-        _.each(props, function(val, key){
-            self.radic.config.set(key, val);
+    this.configWizard = function(done) {
+        var self = this;
+        cli.prompt([
+            this.configItem('user.fullname', 'input', 'Your full name'),
+            this.configItem('user.email', 'input', 'Your public email'),
+            this.configItem('user.website', 'input', 'Your website (full url, use http://)'),
+            this.configItem('credentials.github.username', 'input', 'Github username'),
+            this.configItem('credentials.github.password', 'password', 'Github password'),
+            this.configItem('credentials.bitbucket.username', 'input', 'Bitbucket password'),
+            this.configItem('credentials.bitbucket.password', 'password', 'Bitbucket password')
+        ], function (answers) {
+            _.forEach(answers, function (val, key) {
+                self.conf.set(key, val);
+            });
+            self.conf.save();
+            cli.log.ok('Configuration saved!');
+            done();
         });
-        self.radic.config.set('isConfigured', require('../package.json').version);
-        self.radic.config.save();
-        cb();
-    }.bind(this));
+    }.bind(this);
+
+};
+util.inherits(Generator, ScriptBase);
+
+Generator.prototype.execute = function execute() {
+    var done = this.async();
+    var self = this;
+
+    var config = this.conf;
+
+    var action = this.action,
+        key = this.key,
+        value = this.value;
+
+
+    if (typeof action === 'undefined') {
+        cli.log.fatal('Not enough arguments, config requires an action');
+    } else {
+        switch (action) {
+            case "show":
+                util.log(config.get());
+                break;
+            case "wizard":
+                self.configWizard(done);
+                break;
+            case "open":
+                cli.log('Opening configuration file in text editor (' + config.get('textEditorCommand') + ')');
+                var result = sh.execSync(config.get('textEditorCommand') + ' ' + config.path)
+                if(result.code == 1){
+                    cli.log.fatal('An error occurred while trying to open the configuration file: "' + result.stdout + '"')
+                }
+                done();
+                break;
+            case "get":
+                if(util.defined(key)){
+                    var val = config.get(key);
+                    if(typeof val === 'object'){
+                        cli.writeln(util.inspect(val, { colors: true }));
+                    } else {
+                        cli.writeln(val.toString());
+                    }
+                }
+                done();
+                break;
+            case "set":
+                if(util.defined(key) && util.defined(value)){
+                    config.get(key, value, true);
+                    cli.log.ok('Config key added');
+                }
+                done();
+                break;
+            case "del":
+                if(util.defined(key)){
+                    config.del(key, true);
+                    cli.log.ok('Config key deleted');
+                }
+                done();
+                break;
+            case "clear":
+                cli.prompt([{
+                    name: 'clear',
+                    type: 'confirm',
+                    message: 'Are you sure you want to delete all configuration values?',
+                    default: false
+                }], function(answer){
+                    if(answer.clear === true){
+                        config.clear(true);
+                        cli.log.ok('Configuration cleared');
+                    } else {
+                        cli.log.info('Operation canceled. Configuration has not been altered')
+                    }
+                    done();
+                });
+
+                break;
+            default:
+                done();
+                break;
+        }
+    }
 };
 
-Generator.prototype.done = function done() {
-    this.log(chalk.green("\nConfiguration done.\n"));
-};
 

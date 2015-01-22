@@ -1,12 +1,17 @@
 'use strict';
-var fs = require('fs-extra'),
-    path = require('path'),
-    util = require('util'),
-    Base = require('../lib/base'),
+
+var path = require('path'),
+
+    yeoman = require('yeoman-generator'),
     yosay = require('yosay'),
-    chalk = require('chalk'),
+    Base = require('../lib/base'),
     _ = require('lodash'),
-    utils = require('../lib/utils');
+    semver = require('semver'),
+    async = require('async'),
+
+    radic = require('radic'),
+    util = radic.util,
+    cli = radic.cli;
 
 var Generator = module.exports = function Generator(args, options) {
     Base.apply(this, arguments);
@@ -28,13 +33,13 @@ Generator.prototype.welcome = function welcome() {
 
     this.log(yosay('The Radic generator'));
     this.log(
-        chalk.magenta(
+        cli.magenta(
             'You\'re about to generate radicalized files. Be prepared....' +
             '\n'
         ) +
-        chalk.green(
+        cli.green(
             'The base generator will intitialize a global project. Things like \n' +
-            chalk.blue('git ') + chalk.red('node ') + chalk.yellow('License, readme, travis, jshint ') + ' etc..'
+            cli.blue('git ') + cli.red('node ') + cli.yellow('License, readme, travis, jshint ') + ' etc..'
         )
     );
 
