@@ -19,24 +19,22 @@ generator-radic
 [![Goto repository](http://img.shields.io/badge/goto-repository-orange.svg)](https://github.com/robinradic/generator-radic)
 [![License](http://img.shields.io/badge/license-MIT-blue.svg)](http://radic.mit-license.org)
 
-> A [Yeoman](http://yeoman.io) generator using my personal preferences.
+> A [Yeoman](http://yeoman.io) generator using my personal preferences. [Read the docs](http://robinradic.github.io/generator-radic)
 
-`
-yo radic:config
-yo radic
-yo radic:gitinit
-yo radic:gitinit remote
-yo radic:grunt init
-yo radic:grunt connect
-`
-[Documentation can be found here](http://robinradic.github.io/generator-radic)
+{% highlight sh %}
+yo radic:config show
+yo radic:config wizard # Starts a series of prompts guiding users trough the config
+yo radic:config get <key/path>
+yo radic:config set <key/path> <value>
+yo radic:config del <key/path>
+
+yo radic:gitinit # Starts a series of prompts 
+
+{% endhighlight %}
+
 
 ## License
 Copyright 2014 Robin Radic  
 [MIT Licensed](http://radic.mit-license.org)
 
 
-
-yo radic
- -> node/composer
- -> gitinit
