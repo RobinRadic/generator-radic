@@ -8,8 +8,22 @@ generator-radic
 
 > A [Yeoman](http://yeoman.io) generator using my personal preferences.
 
+`
+yo radic:config
+yo radic
+yo radic:gitinit
+yo radic:gitinit remote
+yo radic:grunt init
+yo radic:grunt connect
+`
 [Documentation can be found here](http://robinradic.github.io/generator-radic)
 
 ## License
 Copyright 2014 Robin Radic  
 [MIT Licensed](http://radic.mit-license.org)
+
+
+
+yo radic
+ -> node/composer
+ -> gitinit

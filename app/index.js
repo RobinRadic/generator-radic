@@ -5,7 +5,7 @@ var fs = require('fs-extra'),
     Base = require('../lib/base'),
     yosay = require('yosay'),
     chalk = require('chalk'),
-    _ = require('underscore'),
+    _ = require('lodash'),
     utils = require('../lib/utils');
 
 var Generator = module.exports = function Generator(args, options) {
@@ -104,6 +104,7 @@ Generator.prototype.askProjectType = function askProjectType() {
     }.bind(this));
 };
 
+
 Generator.prototype.askGit = function askGit() {
     var cb = this.async();
     var self = this;
@@ -128,7 +129,7 @@ Generator.prototype.doGeneral = function doGeneral() {
 
     this.data = {
         date: new Date(Date.now()),
-        user: this.c
+        user: this.radic.config.get('general')
     };
     this.data.year = this.data.date.getFullYear();
 
@@ -149,6 +150,6 @@ Generator.prototype.doGeneral = function doGeneral() {
     }
 
     this.config.set('type', this.projectType);
-    this.config.set('generated', ['project']);
+    this.addGenerated('project');
 };
 

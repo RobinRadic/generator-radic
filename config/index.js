@@ -1,12 +1,72 @@
 'use strict';
 var fs = require('fs-extra'),
     path = require('path'),
-    util = require('util'),
+    os = require('os'),
+
     yeoman = require('yeoman-generator'),
     yosay = require('yosay'),
     chalk = require('chalk'),
-    _ = require('underscore'),
-    utils = require('../lib/utils');
+    _ = require('lodash'),
+    ini = require('ini'),
+
+    radic = require('radic'),
+    util = radic.util;
+
+
+function resolveUserData(){
+    var data = {
+        email: '',
+        name: '',
+        github: {
+            username: '',
+            password: ''
+        },
+        bitbucket: {
+            username: '',
+            password: ''
+        }
+    };
+
+    var dir = util.getUserHomeDir();
+    if(os.type() === 'Linux') {
+        // we search for ~/.gitconfig, ~/.npmrc, ~/.composer/auth.json
+        var paths = {
+            git: path.join(dir, '.gitconfig'),
+            npm: path.join(dir, '.npmrc'),
+            composer:  path.join(dir, '.composer/auth.json')
+        };
+        if(fs.existsSync(paths.git)){
+            var gitconfig = ini.parse(fs.readFileSync(paths.git, 'utf-8'));
+            if(util.defined(gitconfig.user.email)){
+                data.email = gitconfig.user.email;
+            }
+            if(util.defined(gitconfig.user.name)){
+                data.name = gitconfig.user.name;
+            }
+        }
+        if(fs.existsSync(paths.npm) && data.email.length == 0){
+            var npmconfig = ini.parse(fs.readFileSync(paths.npm, 'utf-8'));
+            if(util.defined(npmconfig.email)){
+                data.email = npmconfig.email;
+            }
+        }
+        if(fs.existsSync(paths.composer)){
+            var cconfig = fs.readJSONFileSync(paths.composer);
+            if(util.defined(cconfig['http-basic'])){
+                _.each({github: 'github.com', bitbucket: 'bitbucket.org'}, function(provider, key){
+                    if(util.defined(cconfig['http-basic'][provider])) {
+                        data[key].username = cconfig['http-basic'][provider].username || ''
+                        data[key].password = cconfig['http-basic'][provider].password || ''
+                    }
+                });
+            }
+        }
+
+    }
+    return data;
+}
+
+
 
 var Generator = module.exports = function Generator(args, options) {
     yeoman.generators.Base.apply(this, arguments);
@@ -15,24 +75,29 @@ util.inherits(Generator, yeoman.generators.Base);
 
 Generator.prototype.welcome = function welcome() {
 
-    var u = utils.resolveUserData();
+    var u = resolveUserData();
     this.c = {
-        name: u.name,
-        email: u.email,
-        website: null,
-        license: 'MIT',
-        licenselink: null,
-        gitusername: u.github.username,
-        gitpassword: u.github.password,
-        bitusername: u.bitbucket.username,
-        bitpassword: u.bitbucket.password
+        general: {
+            name: u.name,
+            email: u.email,
+            website: null,
+            license: 'MIT',
+            licenselink: null
+        },
+        git: {
+            providers: {
+                github: {},
+                bitbucket: {}
+            }
+        }
     };
-    this.firstrun = true;
-    var config = utils.getConfig();
-    if(config !== null){
-        _.extend(this.c, config);
-        this.firstrun = false;
-    }
+    _.extend(this.c.git.providers.github, u.github);
+    _.extend(this.c.git.providers.bitbucket, u.bitbucket);
+
+
+    this.radic = radic.app;
+    var config = this.radic.config.get();
+    _.extend(this.c, config);
 
     this.log(yosay('The Radic config generator'));
     this.log(
@@ -49,60 +114,64 @@ Generator.prototype.askGeneral = function askGeneral() {
     this.prompt([
         {
             type: 'input',
-            name: 'name',
+            name: 'general.name',
             message: 'Your name',
-            default: this.c.name
+            default: this.c.general.name
         },
         {
             type: 'input',
-            name: 'email',
+            name: 'general.email',
             message: 'Your email',
-            default: this.c.email
+            default: this.c.general.email
         },
         {
             type: 'input',
-            name: 'website',
+            name: 'general.website',
             message: 'Your website (write fully like: http://yourweb.com)?',
-            default: this.c.website
+            default: this.c.general.website
         },
         {
             type: 'input',
-            name: 'license',
+            name: 'general.license',
             message: 'License that you\'re commonly using?',
-            default: this.c.license
+            default: this.c.general.license
         },
         {
             type: 'input',
-            name: 'licenselink',
-            message: 'A weblink to your license (tip: check out github.com/remy/mit-license for awesome permalink MIT license generation)',
-            default: this.c.licenselink
+            name: 'general.licenselink',
+            message: 'A weblink to your license',
+            default: this.c.general.licenselink
         },
         {
             type: 'input',
-            name: 'gitusername',
+            name: 'git.providers.github.username',
             message: 'Github username',
-            default: this.c.gitusername
+            default: this.c.git.providers.github.username
         },
         {
             type: 'password',
-            name: 'gitpassword',
+            name: 'git.providers.github.password',
             message: 'Github password',
-            default: this.c.gitpassword
+            default: this.c.git.providers.github.password
         },
         {
             type: 'input',
-            name: 'bitusername',
+            name: 'git.providers.bitbucket.username',
             message: 'Bitbucket username',
-            default: this.c.bitusername
+            default: this.c.git.providers.bitbucket.username
         },
         {
             type: 'password',
-            name: 'bitpassword',
+            name: 'git.providers.bitbucket.password',
             message: 'Bitbucket password',
-            default: this.c.bitpassword
+            default: this.c.git.providers.bitbucket.password
         }
     ], function (props) {
-        utils.writeConfig(props);
+        _.each(props, function(val, key){
+            self.radic.config.set(key, val);
+        });
+        self.radic.config.set('isConfigured', require('../package.json').version);
+        self.radic.config.save();
         cb();
     }.bind(this));
 };
