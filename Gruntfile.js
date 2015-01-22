@@ -12,6 +12,19 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        radic_jsdoc: {
+            docs: {
+                docsPath: 'docs'
+            }
+        },
+        radic_jsdoc_mdpages: {
+            docs: {
+                files: [{
+                    src: 'README.md',
+                    dest: 'docs/index.md'
+                }]
+            }
+        },
         git: {
             docs: {
                 options: {
