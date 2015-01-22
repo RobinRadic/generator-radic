@@ -1,37 +1,20 @@
 'use strict';
-var path = require('path'),
 
+var path = require('path'),
 
     yeoman = require('yeoman-generator'),
     yosay = require('yosay'),
-    chalk = require('chalk'),
+    Base = require('../lib/base'),
+    ScriptBase = require('../lib/script-base'),
     _ = require('lodash'),
-    //fs = require('fs-extra'),
+    semver = require('semver'),
     async = require('async'),
 
     radic = require('radic'),
-    git = radic.git,
-
     util = radic.util,
-    defined = util.defined,
+    cli = radic.cli;
 
-    Base = require('../lib/base.js'),
-
-    common = require('../lib/common'),
-    gitremote;
-
-function getGitRemoteUrl(name, api, prefix){
-    prefix = prefix || '';
-    var url = 'https://' + prefix;
-    if(api && name == 'github'){
-        url += 'api.github.com';
-    } else if(api && name == 'bitbucket'){
-        url += 'bitbucket.org/api/2.0'
-    } else {
-        url += name + (name === 'github' ? '.com' : '.org')
-    }
-    return url;
-}
+var git = radic.binwraps.create('git');
 
 var Generator = module.exports = function Generator(args, options, config) {
     var that = this;
@@ -42,180 +25,167 @@ var Generator = module.exports = function Generator(args, options, config) {
 };
 util.inherits(Generator, Base);
 
-Generator.prototype.askGit = function askGit() {
+Generator.prototype.execute = function execute() {
 
-    var cb = this.async();
-    if(this.what == 'remote') return cb();
+    var done = this.async();
     var self = this;
+    var config = this.conf;
 
-
-    this.prompt([{
-        type: 'confirm',
-        name: 'gitGenerate',
-        message: 'Generate .gitignore, .gitattributes?',
-        default: true
-    },{
-        type: 'confirm',
-        name: 'gitCommit',
-        message: 'commit?',
-        default: true
-    }], function (props) {
-        this.gitGenerate = props.gitGenerate;
-        this.gitCommit = props.gitCommit;
-        if(this.gitCommit == true){
-            this.prompt([common.q.gitCommitMessage], function(p){
-                this.gitCommitMessage = p.gitCommitMessage;
-                cb();
-            }.bind(this))
-        } else {
-            cb();
-        }
-
-    }.bind(this));
-};
-Generator.prototype.askGitRemoteProvider = function askGitRemoteProvider() {
-
-    var cb = this.async();
-    this.prompt([{
-        type: 'list',
-        name: 'gitRemote',
-        message: 'Add a remote or create a new remote repository (github or bitbucket)?',
-        choices: ['dont', 'add', 'create']
-    }], function(opts){
-        this.gitRemote = opts.gitRemote;
-        cb();
-    }.bind(this));
-};
-
-Generator.prototype.askGitRemote = function askGitRemote() {
-    var cb = this.async();
-    var self = this;
-
-    if (this.gitRemote === 'dont') {
-        return cb();
-    }
-
-    var q = _.pick(common.q, 'gitRemoteProvider', 'gitRepository', 'gitOwner', 'gitPush')
-
-    var prompts = [];
-    if (this.gitRemote === 'add') {
-        prompts.push(q.gitRemoteProvider, q.gitOwner, q.gitRepository);
-    } else if (this.gitRemote === 'create') {
-        prompts.push(q.gitRemoteProvider, q.gitOwner, q.gitRepository, q.gitPush);
-    } else {
-        // whuut?
-        return cb();
-    }
-
-    if(this.projectType === 'node'){
-        prompts.push({
+    var prompts = {
+        generate: {
+            name: 'generate',
             type: 'confirm',
-            message: 'Add git repository to package.json?',
-            default: true,
-            name: 'gitRepo2Pkg'
-        })
-    }
-
-    // Use git?
-    this.prompt(prompts, function (props) {
-        this.gitRemoteProvider = props.gitRemoteProvider;
-        this.gitOwner = props.gitOwner;
-        this.gitRepository = props.gitRepository;
-        this.gitRepo2Pkg = props.gitRepo2Pkg;
-        if (this.gitRemote === 'create') {
-            this.gitUsername = props.gitUsername;
-            this.gitPassword = props.gitPassword;
-            this.gitPush = props.gitPush;
+            message: 'Generate a .gitignore?', //'Which files should i generate?',
+            default: true
+        },
+        add: {
+            name: 'add',
+            type: 'confirm',
+            message: 'Git add all?',
+            default: true
+        },
+        commit: {
+            name: 'commit',
+            type: 'confirm',
+            message: 'Commit?',
+            default: true
+        },
+        commitMessage: {
+            name: 'commitMessage',
+            type: 'input',
+            message: 'Commit message',
+            default: 'Initial commit'
+        },
+        remote: {
+            name: 'remote',
+            type: 'list',
+            message: 'Do you want to define/create a remote?',
+            choices: ['create', 'add', 'skip'],
+            default: 'create'
+        },
+        remoteProvider: {
+            name: 'remoteProvider',
+            type: 'list',
+            message: 'Remote provider',
+            choices: ['github', 'bitbucket'],
+            default: 'github'
+        },
+        remoteOwner: {
+            name: 'remoteOwner',
+            type: 'input',
+            message: 'Remote owner/user',
+            default: 'Initial commit'
+        },
+        remoteRepo: {
+            name: 'remoteRepo',
+            type: 'input',
+            message: 'Repository name',
+            default: path.basename(process.cwd())
+        },
+        push: {
+            name: 'push',
+            type: 'confirm',
+            message: 'Do you want to push to remote?',
+            default: true
         }
-        cb();
-    }.bind(this));
-};
-
-Generator.prototype.doGit = function doGit() {
-    var cb = this.async();
-    var self = this;
+    };
+    var answers = this.answers = {};
     async.waterfall([
-        function (done) {
-            git.init(function (err, out) {
-                self.log.ok('Initialized git');
-                done(err);
-            });
-        },
-        function (done) {
-            self.src.copy('_.gitignore', '.gitignore');
-            self.conflicter.resolve(function () {
-                done(null);
-            });
-        },
-        function (done) {
-            git.addAll(function (err, out) {
-                self.log.ok('Added all files to git');
-                done(err);
+        function(next){
+            cli.prompt([prompts.generate, prompts.add, prompts.commit], function(opts){
+                _.merge(answers, opts);
+                next();
             })
         },
-        function (done) {
-            git.commit(self.gitCommitMessage, function (err, out) {
-                self.log.ok('Commited pending files');
-                done(err);
-            });
-        }
-    ], function (err, result) {
-        if(err) self.env.error(new Error(err));
-        cb();
-    });
-};
-
-Generator.prototype.doGitRemote = function doGitRemote() {
-    var cb = this.async();
-    var self = this;
-    if (this.gitRemote === 'dont') {
-        return cb();
-    }
-
-    var providerConfig = this.radic.config.get('git.providers.' + this.gitRemoteProvider);
-    var prefix = providerConfig.username + ':' + providerConfig.password + '@';
-    var remoteUrl = getGitRemoteUrl(this.gitRemoteProvider, false, prefix) + '/' + this.gitOwner + '/' + this.gitRepository;
-
-    async.waterfall([
-        function(done){
-            if(this.projectType === 'node'){
-                this.prompt([{
-                    type: 'confirm',
-                    message: 'Add repository to package.json?',
-
-
-                }])
+        function(next){
+            var proms = [];
+            if(answers.commit === true){
+                proms.push(prompts.commitMessage);
             }
-        }.bind(this),
-        function (done) {
-            git.remote.add('origin', remoteUrl, function (err, out) {
-                self.log.ok('Added remote origin ' + self.gitRemoteProvider);
-                done(err);
-            });
+            proms.push(prompts.remote);
+            cli.prompt(proms, function(opts){
+                _.merge(answers, opts);
+                next();
+            })
         },
-        function (done) {
-            if(self.gitRemote !== 'create') return done(null);
-
-            git.getApi(self.gitRemoteProvider).repos.create(self.gitOwner, self.gitRepository, null, function(err, out){
-                self.log.ok('Created remote repository' + self.gitOwner + '/' + self.gitRepository);
-                done(err);
-            }, true);
-
+        function(next){
+            if(answers.remote === 'skip') return next();
+            cli.prompt([prompts.remoteProvider], function(opts){
+                _.merge(answers, opts);
+                next();
+            })
         },
-        function (done) {
-            if(self.gitPush !== true) return done(null);
-            git.push('origin', 'master', function (err, out) {
-                self.log.ok('Pushed origin master to ' + self.gitRemoteProvider);
-                done(err);
-            });
+        function(next){
+            if(answers.remote === 'skip') return next();
+            prompts.remoteOwner.default = config.get('credentials.' + answers.remoteProvider + '.username');
+            cli.prompt([prompts.remoteOwner, prompts.remoteRepo, prompts.push], function(opts){
+                _.merge(answers, opts);
+                next();
+            })
         }
-    ], function (err, result) {
-        if(err) self.env.error(new Error(err));
-        cb();
-    });
+    ], function(err, opts){
+        if(err) throw new Error(err);
+        cli.log(git('init').stdout);
+        if(answers.generate === true){
+            self.src.copy('common/_.gitignore', '.gitignore');
+            self.conflicter.resolve(function () {
+                done();
+            });
+        } else {
+            done();
+        }
+
+    })
 };
 
-Generator.prototype.doDone = function doDone() {
-    this.addGenerated('gitinit');
-    this.log.ok(chalk.green("Finished gitinit"))
+
+Generator.prototype.afterFileCopy = function afterFileCopy(){
+    var answers = this.answers;
+    var done = this.async();
+    var config = this.conf;
+    if(answers.add === true) {
+        git('add', { A: true });
+        cli.log('Added all to git');
+    }
+    if(answers.commit === true) {
+        cli.log(git('commit', { m: answers.commitMessage }).stdout);
+    }
+    if(answers.remote !== 'skip'){
+        var url = (answers.remoteProvider === 'github' ? 'https://github.com' : 'https://bitbucket.org') + "/:owner/:repo";
+        url = url.replace(':owner', answers.remoteOwner).replace(':repo', answers.remoteRepo);
+        git('remote', 'add', 'origin', url);
+        cli.log('Added remote origin ' + url);
+
+        // @todo switch node-github with radic.git.api
+        if(answers.remote === 'create'){
+            var GitHubApi = require("node-github");
+
+            var github = new GitHubApi({
+                version: "3.0.0"
+            });
+            var creds = config.get('credentials.github');
+            github.authenticate({
+                type: "basic",
+                username: creds.username,
+                password: creds.password
+            });
+            github.repos.create({
+                name: answers.remoteRepo
+            }, function(err, data){
+                if(err) throw new Error(err);
+                cli.log('Created remote repository');
+                if(answers.push === true) {
+                    git('push', {u: 'origin master'});
+                    done();
+                    cli.log.ok('Done!');
+                } else {
+                    done();
+                    cli.log.ok('Done!');
+                }
+            })
+        } else {
+            done();
+            cli.log.ok('Done!');
+        }
+    }
 };
