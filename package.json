@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "async": "^0.9.0",
-    "chalk": "^0.5.1",
+    "chalk": "^1.0.0",
     "lodash": "^2.4.1",
     "node-github": "0.0.3",
     "radic": "^0.5.2",
